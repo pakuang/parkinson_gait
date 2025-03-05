@@ -1,47 +1,99 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gait Speed Distribution</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>Gait Speed Distribution (D3 Enhanced)</title>
+  <!-- Load D3 (version 6 or later recommended) -->
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    #controls {
+      margin-bottom: 1rem;
+    }
+
+    #chart-container {
+      width: 80%;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #chart {
+      outline: 1px solid #ccc; /* optional, for debugging layout */
+    }
+
+    select, input[type='range'] {
+      margin: 0 10px;
+      padding: 5px 10px;
+      font-size: 14px;
+    }
+
+    /* Tooltip styling */
+    .tooltip {
+      position: absolute;
+      text-align: center;
+      padding: 4px;
+      font-size: 12px;
+      background: #333;
+      color: #fff;
+      border-radius: 4px;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    /* Axis styling */
+    .axis text {
+      font-size: 12px;
+      fill: #555;
+    }
+
+    .axis path,
+    .axis line {
+      stroke: #888;
+    }
+
+    .brush .selection {
+      fill: #777;
+      fill-opacity: 0.3;
+      stroke: #999;
+      stroke-width: 1;
+    }
+  </style>
 </head>
 <body>
-    <h2 style="text-align:center;">Gait Speed Distribution (Parkinson's vs. Control)</h2>
-    <div id="gaitSpeedChart"></div>
 
-    <script>
-        // Actual dataset values
-        var parkinsons_speed = [0.642, 0.908, 0.848, 0.677, 1.046, 0.894, 1.261, 0.726, 1.369, 0.948, 1.048, 0.731, 0.889, 1.124, 0.722, 1.166, 0.802, 0.36, 1.255, 1.128, 1.244, 1.423, 0.987, 1.092, 1.064, 0.876, 1.242, 0.825, 1.013, 0.906, 0.993, 0.807, 1.234, 0.832, 1.185, 1.246, 1.146, 1.218, 0.785, 1.052, 0.664, 0.906, 1.099, 0.755, 1.112, 0.413, 1.183, 1.212, 0.616, 1.178, 1.247, 0.918, 1.087, 0.94, 1.135, 1.118, 1.044, 0.77, 1.147, 1.276, 1.088, 1.187, 1.352, 0.935, 0.988, 1.107, 1.218, 1.031, 1.139, 1.215, 1.117, 1.298, 1.032, 1.151, 1.021, 1.088, 1.192, 1.167, 1.259, 1.204, 0.856, 1.162, 0.903, 1.12, 1.08, 1.386, 1.28, 0.97, 1.01, 1.07, 0.88, 1.07];
-        var control_speed = [1.075, 1.04, 1.051, 1.175, 0.92, 1.121, 1.282, 0.975, 1.249, 1.164, 1.515, 1.389, 1.211, 1.298, 1.344, 1.346, 1.415, 1.542, 1.089, 1.329, 1.322, 1.239, 1.248, 0.954, 1.332, 1.286, 1.375, 1.051, 1.203, 1.143, 1.17, 1.42, 1.164, 1.484, 1.54, 1.231, 1.253, 1.031, 1.13, 1.144, 1.17, 1.391, 1.265, 1.349, 0.906, 1.371, 1.427, 1.07, 1.263, 1.348, 1.191, 1.31, 1.442, 1.465, 1.538, 1.299, 1.151, 1.469, 1.073, 1.202, 1.27, 1.086, 1.25, 1.458, 1.418, 1.16];
+  <h2>Gait Speed Distribution</h2>
 
-        var trace1 = {
-            x: parkinsons_speed,
-            type: "histogram",
-            name: "Parkinson's",
-            opacity: 0.6,
-            marker: {color: "red"},
-            histnorm: "probability density"
-        };
+  <div id="controls">
+    <!-- Dropdown for group selection -->
+    <select id="group-select">
+      <option value="both">Both Groups</option>
+      <option value="1">Parkinson's Only</option>
+      <option value="2">Control Only</option>
+    </select>
 
-        var trace2 = {
-            x: control_speed,
-            type: "histogram",
-            name: "Control",
-            opacity: 0.6,
-            marker: {color: "blue"},
-            histnorm: "probability density"
-        };
+    <!-- Slider for number of bins -->
+    <label for="bin-slider">Bins: <span id="bin-count">15</span></label>
+    <input type="range" id="bin-slider" min="1" max="40" value="15" />
+  </div>
 
-        var layout = {
-            barmode: "overlay",
-            xaxis: { title: "Gait Speed (Speed_01)" },
-            yaxis: { title: "Density" },
-            title: "Gait Speed Distribution with KDE Overlay",
-        };
+  <div id="chart-container">
+    <svg id="chart" width="800" height="400"></svg>
+  </div>
 
-        Plotly.newPlot("gaitSpeedChart", [trace1, trace2], layout);
-    </script>
+  <!-- Tooltip div for mouseover events -->
+  <div class="tooltip" id="tooltip"></div>
+
+  <!-- External JS -->
+  <script src="script.js"></script>
 </body>
 </html>
