@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gait Speed Distribution (Parkinson's vs. Control)</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .axis-label { font-size: 14px; }
+        .bar-parkinsons { fill: red; opacity: 0.6; }
+        .bar-control { fill: blue; opacity: 0.6; }
+        .kde-line-parkinsons { stroke: red; stroke-width: 2; fill: none; }
+        .kde-line-control { stroke: blue; stroke-width: 2; fill: none; }
+    </style>
+</head>
+<body>
+    <h2>Gait Speed Distribution (Parkinson's vs. Control)</h2>
+    <svg width="800" height="500"></svg>
+
+    <script>
+        // Actual dataset values (Replace these with dynamic values from your dataset)
+        var parkinsons_speed = [0.642, 0.908, 0.848, 0.677, 1.046, 0.894, 1.261, 0.726, 1.369, 0.948, 1.048, 0.731, 0.889, 1.124, 0.722, 1.166, 0.802, 0.36, 1.255, 1.128, 1.244, 1.423, 0.987, 1.092, 1.064, 0.876, 1.242, 0.825, 1.013, 0.906, 0.993, 0.807, 1.234, 0.832, 1.185, 1.246, 1.146, 1.218, 0.785, 1.052, 0.664, 0.906, 1.099, 0.755, 1.112, 0.413, 1.183, 1.212, 0.616, 1.178, 1.247, 0.918, 1.087, 0.94, 1.135, 1.118, 1.044, 0.77, 1.147, 1.276, 1.088, 1.187, 1.352, 0.935, 0.988, 1.107, 1.218, 1.031, 1.139, 1.215, 1.117, 1.298, 1.032, 1.151, 1.021, 1.088, 1.192, 1.167, 1.259, 1.204, 0.856, 1.162, 0.903, 1.12, 1.08, 1.386, 1.28, 0.97, 1.01, 1.07, 0.88, 1.07];
+        var control_speed = [1.075, 1.04, 1.051, 1.175, 0.92, 1.121, 1.282, 0.975, 1.249, 1.164, 1.515, 1.389, 1.211, 1.298, 1.344, 1.346, 1.415, 1.542, 1.089, 1.329, 1.322, 1.239, 1.248, 0.954, 1.332, 1.286, 1.375, 1.051, 1.203, 1.143, 1.17, 1.42, 1.164, 1.484, 1.54, 1.231, 1.253, 1.031, 1.13, 1.144, 1.17, 1.391, 1.265, 1.349, 0.906, 1.371, 1.427, 1.07, 1.263, 1.348, 1.191, 1.31, 1.442, 1.465, 1.538, 1.299, 1.151, 1.469, 1.073, 1.202, 1.27, 1.086, 1.25, 1.458, 1.418, 1.16];
+
+        // Combine datasets with group labels
+        var dataset = parkinsons_speed.map(d => ({ value: d, group: "Parkinson's" }))
+                     .concat(control_speed.map(d => ({ value: d, group: "Control" })));
+
+        // Set dimensions
+        var margin = { top: 30, right: 30, bottom: 50, left: 50 },
+            width = 800 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+        var svg = d3.select("svg")
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        // X Scale
+        var x = d3.scaleLinear()
+            .domain(d3.extent(dataset, d => d.value))
+            .range([0, width]);
+
+        // Histogram Bins (Separate for Parkinson’s & Control)
+        var histogram = d3.histogram()
+            .value(d => d.value)
+            .domain(x.domain())
+            .thresholds(x.ticks(20));
+
+        var bins_parkinsons = histogram(parkinsons_speed.map(d => ({ value: d })));
+        var bins_control = histogram(control_speed.map(d => ({ value: d })));
+
+        // Y Scale
+        var y = d3.scaleLinear()
+            .domain([0, Math.max(
+                d3.max(bins_parkinsons, d => d.length),
+                d3.max(bins_control, d => d.length)
+            )])
+            .range([height, 0]);
+
+        // X Axis
+        svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x))
+            .append("text")
+            .attr("x", width / 2)
+            .attr("y", 40)
+            .attr("class", "axis-label")
+            .text("Gait Speed (Speed_01)");
+
+        // Y Axis
+        svg.append("g")
+            .call(d3.axisLeft(y))
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -40)
+            .attr("x", -height / 2)
+            .attr("class", "axis-label")
+            .text("Count");
+
+        // Draw Histogram Bars for Parkinson’s
+        svg.selectAll(".bar-parkinsons")
+            .data(bins_parkinsons)
+            .enter().append("rect")
+            .attr("x", d => x(d.x0))
+            .attr("y", d => y(d.length))
+            .attr("width", d => x(d.x1) - x(d.x0) - 1)
+            .attr("height", d => height - y(d.length))
+            .attr("class", "bar-parkinsons");
+
+        // Draw Histogram Bars for Control
+        svg.selectAll(".bar-control")
+            .data(bins_control)
+            .enter().append("rect")
+            .attr("x", d => x(d.x0))
+            .attr("y", d => y(d.length))
+            .attr("width", d => x(d.x1) - x(d.x0) - 1)
+            .attr("height", d => height - y(d.length))
+            .attr("class", "bar-control");
+
+        // KDE Function
+        function kernelDensityEstimator(kernel, X) {
+            return X.map(x => ({ x, y: d3.mean(dataset, d => kernel(x - d.value)) }));
+        }
+
+        function gaussianKernel(scale) {
+            return x => Math.exp(-0.5 * (x / scale) ** 2) / (Math.sqrt(2 * Math.PI) * scale);
+        }
+
+        var kde_parkinsons = kernelDensityEstimator(gaussianKernel(0.1), x.ticks(50));
+        var kde_control = kernelDensityEstimator(gaussianKernel(0.1), x.ticks(50));
+
+        // Draw KDE Line for Parkinson’s
+        var kdeLine = d3.line()
+            .x(d => x(d.x))
+            .y(d => y(d.y * dataset.length * 5)); // Scaling factor
+
+        svg.append("path")
+            .datum(kde_parkinsons)
+            .attr("class", "kde-line-parkinsons")
+            .attr("d", kdeLine);
+
+        // Draw KDE Line for Control
+        svg.append("path")
+            .datum(kde_control)
+            .attr("class", "kde-line-control")
+            .attr("d", kdeLine);
+    </script>
+</body>
+</html>
