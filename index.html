@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gait Speed Visualization</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Gait Speed Visualization (Parkinson's vs. Control)</h2>
+    <label for="speedFeature">Select Speed Feature:</label>
+    <select id="speedFeature"></select>
+    <div id="chart"></div>
+    
+    <script>
+        async function loadData() {
+            const response = await fetch('gait_data.json');
+            const data = await response.json();
+            
+            // Extract all speed features
+            const speedFeatures = Object.keys(data[0]).filter(key => key.includes("Speed"));
+            
+            // Populate dropdown menu
+            const select = document.getElementById("speedFeature");
+            speedFeatures.forEach(feature => {
+                const option = document.createElement("option");
+                option.value = feature;
+                option.textContent = feature;
+                select.appendChild(option);
+            });
+            
+            // Initial plot
+            plotData(speedFeatures[0], data);
+            
+            // Update plot on feature selection
+            select.addEventListener("change", (event) => {
+                plotData(event.target.value, data);
+            });
+        }
+        
+        function plotData(feature, data) {
+            const parkinsons = data.filter(d => d.Group == 1).map(d => d[feature]);
+            const control = data.filter(d => d.Group == 2).map(d => d[feature]);
+            
+            const trace1 = {
+                x: parkinsons,
+                type: 'histogram',
+                opacity: 0.6,
+                marker: { color: 'red' },
+                name: "Parkinson's"
+            };
+            
+            const trace2 = {
+                x: control,
+                type: 'histogram',
+                opacity: 0.6,
+                marker: { color: 'blue' },
+                name: 'Control'
+            };
+            
+            const layout = {
+                barmode: 'overlay',
+                xaxis: { title: feature },
+                yaxis: { title: 'Count' },
+                title: `Distribution of ${feature}`
+            };
+            
+            Plotly.newPlot('chart', [trace1, trace2], layout);
+        }
+        
+        loadData();
+    </script>
+</body>
+</html>
