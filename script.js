@@ -414,28 +414,28 @@ d3.text("gait-in-parkinsons-disease-1.0.0/demographics.txt").then(function(text)
 // Step 1: Add UI Elements for Filtering
 const filterControls = document.getElementById("controls");
 
-// Age Range Filter
-const ageLabel = document.createElement("label");
-ageLabel.innerHTML = "Age Range: <span id='age-range'></span>";
-const ageSlider = document.createElement("input");
-ageSlider.type = "range";
-ageSlider.min = "50";
-ageSlider.max = "90";
-ageSlider.value = "90";
-ageSlider.id = "age-slider";
-ageSlider.step = "1";
-filterControls.appendChild(ageLabel);
-filterControls.appendChild(ageSlider);
+// // Age Range Filter
+// const ageLabel = document.createElement("label");
+// ageLabel.innerHTML = "Age Range: <span id='age-range'></span>";
+// const ageSlider = document.createElement("input");
+// ageSlider.type = "range";
+// ageSlider.min = "50";
+// ageSlider.max = "90";
+// ageSlider.value = "90";
+// ageSlider.id = "age-slider";
+// ageSlider.step = "1";
+// filterControls.appendChild(ageLabel);
+// filterControls.appendChild(ageSlider);
 
 // Gender Filter Dropdown
-const genderSelect = document.createElement("select");
-genderSelect.id = "gender-select";
-genderSelect.innerHTML = `
-  <option value="all">All Genders</option>
-  <option value="1">Male</option>
-  <option value="2">Female</option>
-`;
-filterControls.appendChild(genderSelect);
+// const genderSelect = document.createElement("select");
+// genderSelect.id = "gender-select";
+// genderSelect.innerHTML = `
+//   <option value="all">All Genders</option>
+//   <option value="1">Male</option>
+//   <option value="2">Female</option>
+// `;
+// filterControls.appendChild(genderSelect);
 
 // Severity Filter (Only for Parkinson's Patients)
 const severitySelect = document.createElement("select");
@@ -456,14 +456,10 @@ function applyFilters() {
       return;
   }
 
-  const selectedAge = parseInt(ageSlider.value);
-  const selectedGender = genderSelect.value;
   const selectedSeverity = severitySelect.value;
 
   // Filter dataset dynamically
   let filteredData = combinedData.filter(d =>
-    (selectedAge >= d.age - 5) && // Allow a wider range
-    (selectedGender === "all" || d.gender == selectedGender) &&
     (selectedSeverity === "all" || (d.hoehnYahr == selectedSeverity && d.group == 1))
 ).map(d => d.speed);
 
@@ -475,8 +471,6 @@ function applyFilters() {
 
 
 // Step 3: Add Event Listeners
-ageSlider.addEventListener("input", applyFilters);
-genderSelect.addEventListener("change", applyFilters);
 severitySelect.addEventListener("change", applyFilters);
 
 // Step 4: Initialize with Filters Applied
