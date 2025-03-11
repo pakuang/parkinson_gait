@@ -77,8 +77,6 @@ function applyFilters() {
     return;
   }
 
-  const selectedAge = parseInt(ageSlider.value);
-  const selectedGender = genderSelect.value;
   const selectedSeverity = severitySelect.value;
   const selectedGroup = document.getElementById("group-select").value; // Get group selection
 
