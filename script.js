@@ -33,8 +33,28 @@ d3.text("gait-in-parkinsons-disease-1.0.0/demographics.txt").then(function(text)
  *******************/
 const filterControls = document.getElementById("controls");
 
+// // Age Range Filter
+// const ageLabel = document.createElement("label");
+// ageLabel.innerHTML = "Age Range: <span id='age-range'></span>";
+// const ageSlider = document.createElement("input");
+// ageSlider.type = "range";
+// ageSlider.min = "50";
+// ageSlider.max = "90";
+// ageSlider.value = "90";
+// ageSlider.id = "age-slider";
+// ageSlider.step = "1";
+// filterControls.appendChild(ageLabel);
+// filterControls.appendChild(ageSlider);
 
 // Gender Filter Dropdown
+// const genderSelect = document.createElement("select");
+// genderSelect.id = "gender-select";
+// genderSelect.innerHTML = `
+//   <option value="all">All Genders</option>
+//   <option value="1">Male</option>
+//   <option value="2">Female</option>
+// `;
+// filterControls.appendChild(genderSelect);
 
 // Severity Filter (Only for Parkinson's Patients)
 const severitySelect = document.createElement("select");
