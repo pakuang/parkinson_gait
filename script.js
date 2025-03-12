@@ -152,6 +152,40 @@ function drawHistogram(parkinsonsData, controlData, binCount = 15) {
       console.log("No data to display.");
       return;
   }
+  // Remove existing legend if any (to prevent duplicates)
+chartArea.selectAll(".legend").remove();
+
+// Add a legend container
+const legend = chartArea.append("g")
+    .attr("class", "legend")
+    .attr("transform", `translate(${width / 2 - 70}, -30)`); // Adjust position
+
+// Parkinson’s Legend
+legend.append("rect")
+    .attr("width", 15)
+    .attr("height", 15)
+    .attr("fill", "crimson") 
+    .attr("opacity", 0.6);
+
+legend.append("text")
+    .text("Parkinson's")
+    .attr("x", 20)
+    .attr("y", 12)
+    .attr("font-size", "14px");
+
+// Control Legend
+legend.append("rect")
+    .attr("width", 15)
+    .attr("height", 15)
+    .attr("fill", "steelblue") 
+    .attr("opacity", 0.6)
+    .attr("x", 100);
+
+legend.append("text")
+    .text("Control")
+    .attr("x", 120)
+    .attr("y", 12)
+    .attr("font-size", "14px");
 
   const maxVal = Math.max(
       d3.max(parkinsonsData, d => d) || 0, 
@@ -178,7 +212,7 @@ function drawHistogram(parkinsonsData, controlData, binCount = 15) {
       .enter()
       .append("rect")
       .attr("class", "barPark")
-      .attr("fill", "steelblue")
+      .attr("fill", "crimson")
       .attr("opacity", 0.6)
       .attr("x", d => xScale(d.x0))
       .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
@@ -194,7 +228,7 @@ function drawHistogram(parkinsonsData, controlData, binCount = 15) {
       .enter()
       .append("rect")
       .attr("class", "barCtrl")
-      .attr("fill", "crimson")
+      .attr("fill", "steelblue")
       .attr("opacity", 0.6)
       .attr("x", d => xScale(d.x0))
       .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
@@ -205,6 +239,7 @@ function drawHistogram(parkinsonsData, controlData, binCount = 15) {
       .attr("y", d => yScale(d.length))
       .attr("height", d => height - yScale(d.length));
 
+      
   xAxisGroup.transition().duration(750).call(d3.axisBottom(xScale));
   yAxisGroup.transition().duration(750).call(d3.axisLeft(yScale).ticks(6));
 }
