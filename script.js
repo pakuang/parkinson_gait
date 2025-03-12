@@ -37,7 +37,7 @@ const filterControls = document.getElementById("controls");
 
 // Age Range Filter
 const ageLabel = document.createElement("label");
-// ageLabel.innerHTML = "Age Range: <span id='age-range'></span>";
+ageLabel.innerHTML = "Age Range: <span id='age-range'>90</span>"; // Set initial value
 const ageSlider = document.createElement("input");
 ageSlider.type = "range";
 ageSlider.min = "50";
@@ -45,7 +45,6 @@ ageSlider.max = "90";
 ageSlider.value = "90";
 ageSlider.id = "age-slider";
 ageSlider.step = "1";
-ageLabel.innerHTML = "Age Range: <span id='age-range'></span>";
 filterControls.appendChild(ageLabel);
 filterControls.appendChild(ageSlider);
 
@@ -70,6 +69,16 @@ severitySelect.innerHTML = `
   <option value="4">Hoehn & Yahr 4</option>
 `;
 filterControls.appendChild(severitySelect);
+
+// Event Listeners
+ageSlider.addEventListener("input", function() {
+  // Update the displayed value when the slider moves
+  document.getElementById("age-range").textContent = this.value;
+  applyFilters();
+});
+genderSelect.addEventListener("change", applyFilters);
+severitySelect.addEventListener("change", applyFilters);
+document.getElementById("group-select").addEventListener("change", applyFilters);
 
 /*******************
  * STEP 3: Apply Filters
