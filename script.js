@@ -4,6 +4,7 @@
 
 // Define an empty array to store parsed data
 let combinedData = [];
+const fixedBins = 30; // Set fixed number of bins
 
 // Load the dataset
 d3.text("gait-in-parkinsons-disease-1.0.0/demographics.txt").then(function(text) {
@@ -27,6 +28,7 @@ d3.text("gait-in-parkinsons-disease-1.0.0/demographics.txt").then(function(text)
     console.log("Loaded dataset:", combinedData);
     applyFilters();
 });
+
 
 /*******************
  * STEP 2: UI Elements for Filtering
@@ -81,8 +83,7 @@ function applyFilters() {
   const selectedGender = genderSelect.value;
   const selectedSeverity = severitySelect.value;
   const selectedGroup = document.getElementById("group-select").value;
-  const currentBins = parseInt(document.getElementById("bin-slider").value); // ✅ Get bins value
-
+    
   let parkinsonsSpeeds = [];
   let controlSpeeds = [];
 
@@ -109,8 +110,8 @@ function applyFilters() {
 
   console.log("Filtered Parkinson's Data:", parkinsonsSpeeds);
   console.log("Filtered Control Data:", controlSpeeds);
-  console.log("Current Bins:", currentBins);
-  drawHistogram(parkinsonsSpeeds, controlSpeeds, currentBins);
+  console.log("Current Bins:", fixedBins);
+  drawHistogram(parkinsonsSpeeds, controlSpeeds, fixedBins);
 }
 
 
@@ -120,7 +121,6 @@ ageSlider.addEventListener("input", applyFilters);
 genderSelect.addEventListener("change", applyFilters);
 severitySelect.addEventListener("change", applyFilters);
 document.getElementById("group-select").addEventListener("change", applyFilters);
-document.getElementById("bin-slider").addEventListener("input", applyFilters);
 
 
 /*******************
@@ -193,7 +193,7 @@ legend.append("text")
   );
   xScale.domain([0, maxVal]);
 
-  const histogram = d3.histogram().domain(xScale.domain()).thresholds(binCount);
+  const histogram = d3.histogram().domain(xScale.domain()).thresholds(fixedBins);
 
   const binsPark = histogram(parkinsonsData);
   const binsCtrl = histogram(controlData);
