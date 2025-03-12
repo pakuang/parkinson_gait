@@ -1,31 +1,138 @@
-body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background-color: #f4f4f4;
+/* Reset Default Styles */
+body, h1, h2, h3, p, button, select, input {
     margin: 0;
-    padding: 20px;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
 }
 
-#chart {
-    width: 80%;
-    margin: auto;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-select {
-    margin: 20px;
-    padding: 10px;
+/* General Page Styling */
+body {
+    background-color: #F9F9F9;
+    color: #323136;
     font-size: 16px;
+    line-height: 1.6;
+    text-align: center;
 }
 
-.axis text {
-    font-size: 12px;
-    fill: #555;
-  }
-  .axis path,
-  .axis line {
-    stroke: #888;
-  }
+/* Header Styling */
+header {
+    background-color: #ffffff;
+    padding: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #514766;
+    border-bottom: 3px solid #E2E8F0;
+}
+
+/* Control Panel Styling */
+#controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    width: 80%;
+    gap: 15px;
+}
+
+/* Buttons */
+button {
+    padding: 10px 15px;
+    border: 2px solid #afadcc;
+    border-radius: 5px;
+    background-color: #ffffff;
+    color: #9966ff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+button:hover {
+    background-color: #afadcc;
+    color: white;
+}
+
+/* Dropdowns */
+select {
+    padding: 10px;
+    border: 2px solid #bcb7ff;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background-color: #F0F7EE;
+    color: #3f3963;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+select:hover {
+    border-color: #afadcc;
+}
+
+/* Sliders */
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 150px;
+    height: 5px;
+    background: #E2E8F0;
+    border-radius: 5px;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #ab8dff;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+input[type="range"]:hover {
+    background: #CDE0D6;
+}
+
+/* Chart Styling */
+#chart {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    margin: 0px auto;
+    width: 80%;
+}
+
+/* Legend Styling */
+.legend {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 10px;
+}
+
+.legend text {
+    font-size: 14px;
+    fill: #434147;
+    font-weight: bold;
+}
+
+.legend rect {
+    border-radius: 5px;
+}
+
+/* Footer Styling */
+footer {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #ffffff;
+    color: #9966ff;
+    border-top: 3px solid #E2E8F0;
+    font-size: 14px;
+}
