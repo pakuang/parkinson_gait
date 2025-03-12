@@ -33,11 +33,11 @@ d3.text("gait-in-parkinsons-disease-1.0.0/demographics.txt").then(function(text)
 /*******************
  * STEP 2: UI Elements for Filtering
  *******************/
+// Get the controls container and initially hide it
 const filterControls = document.getElementById("controls");
+filterControls.style.display = "none"; // Hide initially
 
-// Age Range Filter
-const ageLabel = document.createElement("label");
-ageLabel.innerHTML = "Age Range: <span id='age-range'></span>";
+// Age Range Filter (Hidden initially, will be shown later)
 const ageSlider = document.createElement("input");
 ageSlider.type = "range";
 ageSlider.min = "50";
@@ -45,10 +45,27 @@ ageSlider.max = "90";
 ageSlider.value = "90";
 ageSlider.id = "age-slider";
 ageSlider.step = "1";
-filterControls.appendChild(ageLabel);
-filterControls.appendChild(ageSlider);
+ageSlider.style.display = "none"; // Hide initially
 
-// Gender Filter Dropdown
+const ageLabel = document.createElement("label");
+ageLabel.innerHTML = `Age Range: <span id='age-value'>${ageSlider.value}</span>`;
+ageLabel.style.display = "none"; // Hide initially
+
+document.body.appendChild(ageLabel);
+
+// Fast Forward Button
+const fastForwardButton = document.createElement("button");
+fastForwardButton.id = "fast-forward";
+fastForwardButton.textContent = "Fast Forward: Progress through Age Groups";
+fastForwardButton.style.marginLeft = "10px";
+fastForwardButton.style.padding = "8px 12px";
+fastForwardButton.style.fontSize = "14px";
+fastForwardButton.style.cursor = "pointer";
+
+// Append the Fast Forward button to the body
+document.body.insertBefore(fastForwardButton, filterControls);
+
+// Gender Filter Dropdown (Hidden initially)
 const genderSelect = document.createElement("select");
 genderSelect.id = "gender-select";
 genderSelect.innerHTML = `
@@ -56,9 +73,9 @@ genderSelect.innerHTML = `
   <option value="1">Male</option>
   <option value="2">Female</option>
 `;
-filterControls.appendChild(genderSelect);
+genderSelect.style.display = "none";
 
-// Severity Filter (Only for Parkinson's Patients)
+// Severity Filter (Hidden initially)
 const severitySelect = document.createElement("select");
 severitySelect.id = "severity-select";
 severitySelect.innerHTML = `
@@ -68,59 +85,187 @@ severitySelect.innerHTML = `
   <option value="3">Hoehn & Yahr 3</option>
   <option value="4">Hoehn & Yahr 4</option>
 `;
-filterControls.appendChild(severitySelect);
+severitySelect.style.display = "none";
+
+/*******************
+ * STEP 3: Show Controls AFTER Fast Forward
+ *******************/
+function showControls() {
+    filterControls.style.display = "block"; // Make controls visible
+    ageSlider.style.display = "inline-block";
+    ageLabel.style.display = "inline-block";
+    genderSelect.style.display = "inline-block";
+    severitySelect.style.display = "inline-block";
+
+    filterControls.appendChild(ageLabel);
+    filterControls.appendChild(ageSlider);
+    filterControls.appendChild(genderSelect);
+    filterControls.appendChild(severitySelect);
+}
+
 
 /*******************
  * STEP 3: Apply Filters
  *******************/
+function updateAgeLabel(age) {
+    ageText.text(`Current Age Group: ${age}`);
+}
+
 function applyFilters() {
-  if (combinedData.length === 0) {
-      console.log("Data not loaded yet.");
-      return;
-  }
+    if (combinedData.length === 0) {
+        console.log("Data not loaded yet.");
+        return;
+    }
 
-  const selectedAge = parseInt(ageSlider.value);
-  const selectedGender = genderSelect.value;
-  const selectedSeverity = severitySelect.value;
-  const selectedGroup = document.getElementById("group-select").value;
-    
-  let parkinsonsSpeeds = [];
-  let controlSpeeds = [];
+    const selectedAge = parseInt(ageSlider.value);
+    console.log("Filtering for Age:", selectedAge);
 
-  if (selectedGroup === "both" || selectedGroup === "1") {
-      parkinsonsSpeeds = combinedData
-          .filter(d =>
-              d.group === 1 &&
-              (selectedAge >= d.age - 5) &&
-              (selectedGender === "all" || d.gender == selectedGender) &&
-              (selectedSeverity === "all" || d.hoehnYahr == selectedSeverity)
-          )
-          .map(d => d.speed);
-  }
+    let parkinsonsSpeeds = combinedData.filter(d => d.group === 1 && selectedAge >= d.age - 5).map(d => d.speed);
+    let controlSpeeds = combinedData.filter(d => d.group === 2 && selectedAge >= d.age - 5).map(d => d.speed);
 
-  if (selectedGroup === "both" || selectedGroup === "2") {
-      controlSpeeds = combinedData
-          .filter(d =>
-              d.group === 2 &&
-              (selectedAge >= d.age - 5) &&
-              (selectedGender === "all" || d.gender == selectedGender)
-          )
-          .map(d => d.speed);
-  }
+    console.log("Filtered Parkinson's Data:", parkinsonsSpeeds);
+    console.log("Filtered Control Data:", controlSpeeds);
 
-  console.log("Filtered Parkinson's Data:", parkinsonsSpeeds);
-  console.log("Filtered Control Data:", controlSpeeds);
-  console.log("Current Bins:", fixedBins);
-  drawHistogram(parkinsonsSpeeds, controlSpeeds, fixedBins);
+    drawHistogram(parkinsonsSpeeds, controlSpeeds, fixedBins);
+}
+
+function updateHistogram(selectedAge) {
+    if (combinedData.length === 0) return;
+
+    let parkinsonsSpeeds = combinedData.filter(d => d.group === 1 && selectedAge >= d.age - 5).map(d => d.speed);
+    let controlSpeeds = combinedData.filter(d => d.group === 2 && selectedAge >= d.age - 5).map(d => d.speed);
+
+    console.log("Updating histogram for Age:", selectedAge);
+
+    const histogram = d3.histogram().domain(xScale.domain()).thresholds(fixedBins);
+    const totalPark = Math.max(parkinsonsSpeeds.length, 1);
+    const totalCtrl = Math.max(controlSpeeds.length, 1);
+
+    const binsPark = histogram(parkinsonsSpeeds).map(bin => ({
+        ...bin,
+        density: bin.length / (totalPark * (bin.x1 - bin.x0))
+    }));
+
+    const binsCtrl = histogram(controlSpeeds).map(bin => ({
+        ...bin,
+        density: bin.length / (totalCtrl * (bin.x1 - bin.x0))
+    }));
+
+    const maxDensity = Math.max(
+        d3.max(binsPark, d => d.density) || 0,
+        d3.max(binsCtrl, d => d.density) || 0
+    );
+
+    yScale.domain([0, maxDensity]);
+
+    chartArea.selectAll(".barPark")
+        .data(binsPark)
+        .transition()
+        .duration(750)
+        .attr("y", d => yScale(d.density))
+        .attr("height", d => height - yScale(d.density));
+
+    chartArea.selectAll(".barCtrl")
+        .data(binsCtrl)
+        .transition()
+        .duration(750)
+        .attr("y", d => yScale(d.density))
+        .attr("height", d => height - yScale(d.density));
+
+    yAxisGroup.transition().duration(750).call(d3.axisLeft(yScale).ticks(6));
+}
+
+
+function startAgingAnimation() {
+    // const ageMilestones = [50, 52, 55, 60, 62, 65, 70, 72, 75, 80, 82, 85, 90];
+    const ageMilestones = Array.from({ length: 41 }, (_, i) => i + 50);
+    let index = 0;
+
+    function updateAge() {
+        if (index >= ageMilestones.length) {
+            showControls(); // Show controls only after animation completes
+            applyFilters();
+            return;
+        }
+
+        const currentAge = ageMilestones[index];
+        document.getElementById("age-value").textContent = currentAge;
+        ageSlider.value = currentAge;
+
+        updateAgeLabel(currentAge);
+        updateHistogram(currentAge); // Update the histogram
+
+        if ([50, 60, 70, 80, 90].includes(currentAge)) {
+            showAnnotation(currentAge);
+            setTimeout(() => {
+                hideAnnotation();
+                index++;
+                updateAge();
+            }, 8000); 
+        } else {
+            setTimeout(() => {
+                index++;
+                updateAge();
+            }, 500); 
+        }
+    }
+
+    updateAge();
+}
+
+function showAnnotation(age) {
+    const annotationBox = document.getElementById("annotation-box");
+
+    let message = "";
+    if (age === 50) {
+        message = "At age 50, the control group has a wide distribution, peaking around 1.2–1.4 m/s. " +
+                  "Parkinson’s patients already show a slower gait, with their distribution shifted left, " +
+                  "mostly below 1.2 m/s, with some falling under 0.8 m/s.";
+    } else if (age === 60) {
+        message = "By age 60, the control group remains largely unchanged, though a few individuals show slowing below 1.1 m/s. " +
+                  "The Parkinson’s group, however, has a wider distribution, with more participants below 1.0 m/s, " +
+                  "and an increasing number slowing to around 0.6–0.8 m/s.";
+    } else if (age === 70) {
+        message = "At age 70, the control group still peaks around 1.2 m/s but now has a longer left tail, " +
+                  "with more participants dropping below 1.0 m/s. The Parkinson’s group shows a clear downward shift, " +
+                  "with most now below 0.8 m/s and a growing cluster below 0.6 m/s.";
+    } else if (age === 80) {
+        message = "By age 80, the control group’s distribution has compressed, with fewer participants above 1.2 m/s, " +
+                  "and more shifting toward 1.0–1.1 m/s. The Parkinson’s distribution continues to narrow and shift left, " +
+                  "with most below 0.6 m/s and an increasing number near 0.4 m/s.";
+    } else if (age === 90) {
+        message = "At age 90, Parkinson’s patients shows a much broader range of gait speeds, with many now below 1.0 m/s. " +
+                  "Parkinson’s patients exhibit extreme bradykinesia, with their distribution becoming increasingly concentrated at very slow speeds, highlighting severe mobility loss.";
+    }
+
+    annotationBox.innerHTML = `<strong>Age ${age}:</strong> ${message}`;
+    annotationBox.style.display = "block";
+    annotationBox.style.position = "absolute";  // Ensure it stays in the right position
+    annotationBox.style.top = "calc(85%)";  // Move it below the chart
+    annotationBox.style.left = "50%";
+    annotationBox.style.transform = "translateX(-50%)"; // Center it horizontally
+    annotationBox.style.width = "60%"; // Make sure it fits neatly under the chart
+    annotationBox.style.textAlign = "center"; // Align text for readability
+}
+
+
+function hideAnnotation() {
+    document.getElementById("annotation-box").style.display = "none";
 }
 
 
 
+
 // Event Listeners
-ageSlider.addEventListener("input", applyFilters);
+ageSlider.addEventListener("input", function() {
+    document.getElementById("age-value").textContent = ageSlider.value;
+    updateAgeLabel(ageSlider.value);
+    applyFilters(); // Ensure filters are reapplied
+});
 genderSelect.addEventListener("change", applyFilters);
 severitySelect.addEventListener("change", applyFilters);
 document.getElementById("group-select").addEventListener("change", applyFilters);
+fastForwardButton.addEventListener("click", startAgingAnimation);
 
 
 /*******************
@@ -143,6 +288,15 @@ const yScale = d3.scaleLinear().range([height, 0]);
 
 const xAxisGroup = chartArea.append("g").attr("transform", `translate(0, ${height})`);
 const yAxisGroup = chartArea.append("g");
+// Modify the position of the age label to move it to the left
+const ageText = chartArea.append("text")
+    .attr("id", "age-group-label")
+    .attr("x", -margin.left + 20)  // 🔥 Shift to the left
+    .attr("y", -20)  // Keep it slightly above the graph
+    .attr("text-anchor", "start")  // 🔥 Align text to the left
+    .attr("font-size", "16px")
+    .attr("fill", "black")
+    .text(`Current Age Group: ${ageSlider.value}`);
 
 /*******************
  * STEP 5: Draw Histogram
@@ -195,17 +349,30 @@ legend.append("text")
 
   const histogram = d3.histogram().domain(xScale.domain()).thresholds(fixedBins);
 
-  const binsPark = histogram(parkinsonsData);
-  const binsCtrl = histogram(controlData);
+const totalPark = parkinsonsData.length;
+const totalCtrl = controlData.length;
 
-  const maxCount = Math.max(
-      d3.max(binsPark, d => d.length) || 0,
-      d3.max(binsCtrl, d => d.length) || 0
-  );
-  yScale.domain([0, maxCount]);
+const binsPark = histogram(parkinsonsData).map(bin => ({
+    ...bin,
+    density: bin.length / (totalPark * (bin.x1 - bin.x0)) // Normalize counts
+}));
+
+const binsCtrl = histogram(controlData).map(bin => ({
+    ...bin,
+    density: bin.length / (totalCtrl * (bin.x1 - bin.x0)) // Normalize counts
+}));
+
+
+const maxDensity = Math.max(
+    d3.max(binsPark, d => d.density) || 0,
+    d3.max(binsCtrl, d => d.density) || 0
+);
+yScale.domain([0, maxDensity]); // Use density instead of raw counts
+
 
   chartArea.selectAll(".barPark").remove();
   chartArea.selectAll(".barCtrl").remove();
+  
 
   chartArea.selectAll(".barPark")
       .data(binsPark)
@@ -220,8 +387,8 @@ legend.append("text")
       .attr("height", 0)
       .transition()
       .duration(750)
-      .attr("y", d => yScale(d.length))
-      .attr("height", d => height - yScale(d.length));
+      .attr("y", d => yScale(d.density))
+      .attr("height", d => height - yScale(d.density));
 
   chartArea.selectAll(".barCtrl")
       .data(binsCtrl)
@@ -236,16 +403,40 @@ legend.append("text")
       .attr("height", 0)
       .transition()
       .duration(750)
-      .attr("y", d => yScale(d.length))
-      .attr("height", d => height - yScale(d.length));
+      .attr("y", d => yScale(d.density))
+      .attr("height", d => height - yScale(d.density));
 
       
   xAxisGroup.transition().duration(750).call(d3.axisBottom(xScale));
   yAxisGroup.transition().duration(750).call(d3.axisLeft(yScale).ticks(6));
+
+  svg.select("#x-axis-label").remove();
+  svg.select("#y-axis-label").remove();
+
+  // X-Axis Label
+svg.append("text")
+.attr("id", "x-axis-label")
+.attr("x", width / 2 + margin.left)
+.attr("y", height + margin.top + 35)
+.attr("text-anchor", "middle")
+.style("font-size", "14px")
+.text("Gait Speed (m/s)");
+
+// Y-Axis Label
+svg.append("text")
+.attr("id", "y-axis-label")
+.attr("transform", "rotate(-90)")
+.attr("x", -height /1.5)
+.attr("y", margin.left - 40)
+.attr("text-anchor", "middle")
+.style("font-size", "14px")
+.text("Density");
+
 }
 
-
+fastForwardButton.addEventListener("click", startAgingAnimation);
 /*******************
  * STEP 6: Initialize
  *******************/
-applyFilters();
+// applyFilters();
+setTimeout(applyFilters, 500);

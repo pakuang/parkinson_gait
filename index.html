@@ -72,12 +72,13 @@
 </head>
 <body>
 
-  <h2>Does Gait Speed Differ Between Individuals With and Without Parkinson’s?</h2>
+  <h2>The Hidden Struggles of Movement: Is the Rate of Gait Speed Decline with Age More Pronounced in Parkinson’s Patients?</h2>
 
   <h4 style="max-width: 600px; margin: auto; font-weight: normal; color: #555;">
-    Walking is something most of us take for granted, but for people with Parkinson’s, every step tells a story. 
-    How does Parkinson’s affect movement? Let’s explore how gait speed differs between individuals with and without the disease.
+    Aging naturally affects gait speed, but Parkinson’s disease may accelerate this decline. 
+    Let’s explore how gait speed changes with age and whether this decline is more severe in Parkinson’s patients.
 </h4>
+
 
   <div id="controls">
     <!-- Dropdown for group selection -->
@@ -87,24 +88,23 @@
       <option value="2">Control Only</option>
     </select>    
 
-    <!-- Slider for number of bins -->
-    <!-- <label for="bin-slider">Bins: <span id="bin-count">15</span></label>
-    <input type="range" id="bin-slider" min="1" max="40" value="15" /> -->
-  </div>
 
+  </div>
+  <div id="annotation-box" style="
+  display: none;
+  position: absolute;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+"></div>
   <div id="chart-container">
     <svg id="chart" width="800" height="400"></svg>
   </div>
 
-  <p class="subtitle">
-    Parkinson’s patients tend to walk more slowly, reflecting bradykinesia (slowness of movement).  
-  </p>
-  <p>
-    Healthy individuals maintain a more consistent and higher walking speed.
-  </p>
-  <p>
-    Some individuals with Parkinson’s have speeds similar to healthy individuals, but changing the bin sizes show that variability is key.
-  </p>
+  
 
   <!-- Tooltip div for mouseover events -->
   <div class="tooltip" id="tooltip"></div>
