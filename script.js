@@ -73,46 +73,46 @@ filterControls.appendChild(severitySelect);
  *******************/
 function applyFilters() {
   if (combinedData.length === 0) {
-    console.log("Data not loaded yet.");
-    return;
+      console.log("Data not loaded yet.");
+      return;
   }
 
   const selectedAge = parseInt(ageSlider.value);
   const selectedGender = genderSelect.value;
   const selectedSeverity = severitySelect.value;
-  const selectedGroup = document.getElementById("group-select").value; // Get group selection
+  const selectedGroup = document.getElementById("group-select").value;
+  const currentBins = parseInt(document.getElementById("bin-slider").value); // ✅ Get bins value
 
   let parkinsonsSpeeds = [];
   let controlSpeeds = [];
 
   if (selectedGroup === "both" || selectedGroup === "1") {
-    // Filter Parkinson's data
-    parkinsonsSpeeds = combinedData
-      .filter(d =>
-        d.group === 1 &&
-        (selectedAge >= d.age - 5) &&
-        (selectedGender === "all" || d.gender == selectedGender) &&
-        (selectedSeverity === "all" || d.hoehnYahr == selectedSeverity)
-      )
-      .map(d => d.speed);
+      parkinsonsSpeeds = combinedData
+          .filter(d =>
+              d.group === 1 &&
+              (selectedAge >= d.age - 5) &&
+              (selectedGender === "all" || d.gender == selectedGender) &&
+              (selectedSeverity === "all" || d.hoehnYahr == selectedSeverity)
+          )
+          .map(d => d.speed);
   }
 
   if (selectedGroup === "both" || selectedGroup === "2") {
-    // Filter Control data
-    controlSpeeds = combinedData
-      .filter(d =>
-        d.group === 2 &&
-        (selectedAge >= d.age - 5) &&
-        (selectedGender === "all" || d.gender == selectedGender)
-      )
-      .map(d => d.speed);
+      controlSpeeds = combinedData
+          .filter(d =>
+              d.group === 2 &&
+              (selectedAge >= d.age - 5) &&
+              (selectedGender === "all" || d.gender == selectedGender)
+          )
+          .map(d => d.speed);
   }
 
   console.log("Filtered Parkinson's Data:", parkinsonsSpeeds);
   console.log("Filtered Control Data:", controlSpeeds);
-
-  drawHistogram(parkinsonsSpeeds, controlSpeeds);
+  console.log("Current Bins:", currentBins);
+  drawHistogram(parkinsonsSpeeds, controlSpeeds, currentBins);
 }
+
 
 
 // Event Listeners
@@ -120,6 +120,7 @@ ageSlider.addEventListener("input", applyFilters);
 genderSelect.addEventListener("change", applyFilters);
 severitySelect.addEventListener("change", applyFilters);
 document.getElementById("group-select").addEventListener("change", applyFilters);
+document.getElementById("bin-slider").addEventListener("input", applyFilters);
 
 
 /*******************
@@ -146,26 +147,26 @@ const yAxisGroup = chartArea.append("g");
 /*******************
  * STEP 5: Draw Histogram
  *******************/
-function drawHistogram(parkinsonsData, controlData) {
+function drawHistogram(parkinsonsData, controlData, binCount = 15) {
   if (parkinsonsData.length === 0 && controlData.length === 0) {
-    console.log("No data to display.");
-    return;
+      console.log("No data to display.");
+      return;
   }
 
   const maxVal = Math.max(
-    d3.max(parkinsonsData, d => d) || 0, 
-    d3.max(controlData, d => d) || 0
+      d3.max(parkinsonsData, d => d) || 0, 
+      d3.max(controlData, d => d) || 0
   );
   xScale.domain([0, maxVal]);
 
-  const histogram = d3.histogram().domain(xScale.domain()).thresholds(15);
+  const histogram = d3.histogram().domain(xScale.domain()).thresholds(binCount);
 
   const binsPark = histogram(parkinsonsData);
   const binsCtrl = histogram(controlData);
 
   const maxCount = Math.max(
-    d3.max(binsPark, d => d.length) || 0,
-    d3.max(binsCtrl, d => d.length) || 0
+      d3.max(binsPark, d => d.length) || 0,
+      d3.max(binsCtrl, d => d.length) || 0
   );
   yScale.domain([0, maxCount]);
 
@@ -173,40 +174,41 @@ function drawHistogram(parkinsonsData, controlData) {
   chartArea.selectAll(".barCtrl").remove();
 
   chartArea.selectAll(".barPark")
-    .data(binsPark)
-    .enter()
-    .append("rect")
-    .attr("class", "barPark")
-    .attr("fill", "steelblue")
-    .attr("opacity", 0.6)
-    .attr("x", d => xScale(d.x0))
-    .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
-    .attr("y", height)
-    .attr("height", 0)
-    .transition()
-    .duration(750)
-    .attr("y", d => yScale(d.length))
-    .attr("height", d => height - yScale(d.length));
+      .data(binsPark)
+      .enter()
+      .append("rect")
+      .attr("class", "barPark")
+      .attr("fill", "steelblue")
+      .attr("opacity", 0.6)
+      .attr("x", d => xScale(d.x0))
+      .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
+      .attr("y", height)
+      .attr("height", 0)
+      .transition()
+      .duration(750)
+      .attr("y", d => yScale(d.length))
+      .attr("height", d => height - yScale(d.length));
 
   chartArea.selectAll(".barCtrl")
-    .data(binsCtrl)
-    .enter()
-    .append("rect")
-    .attr("class", "barCtrl")
-    .attr("fill", "crimson")
-    .attr("opacity", 0.6)
-    .attr("x", d => xScale(d.x0))
-    .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
-    .attr("y", height)
-    .attr("height", 0)
-    .transition()
-    .duration(750)
-    .attr("y", d => yScale(d.length))
-    .attr("height", d => height - yScale(d.length));
+      .data(binsCtrl)
+      .enter()
+      .append("rect")
+      .attr("class", "barCtrl")
+      .attr("fill", "crimson")
+      .attr("opacity", 0.6)
+      .attr("x", d => xScale(d.x0))
+      .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
+      .attr("y", height)
+      .attr("height", 0)
+      .transition()
+      .duration(750)
+      .attr("y", d => yScale(d.length))
+      .attr("height", d => height - yScale(d.length));
 
   xAxisGroup.transition().duration(750).call(d3.axisBottom(xScale));
   yAxisGroup.transition().duration(750).call(d3.axisLeft(yScale).ticks(6));
 }
+
 
 /*******************
  * STEP 6: Initialize
