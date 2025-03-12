@@ -37,7 +37,7 @@ const filterControls = document.getElementById("controls");
 
 // Age Range Filter
 const ageLabel = document.createElement("label");
-ageLabel.innerHTML = "Age Range: <span id='age-range'></span>";
+// ageLabel.innerHTML = "Age Range: <span id='age-range'></span>";
 const ageSlider = document.createElement("input");
 ageSlider.type = "range";
 ageSlider.min = "50";
@@ -45,6 +45,7 @@ ageSlider.max = "90";
 ageSlider.value = "90";
 ageSlider.id = "age-slider";
 ageSlider.step = "1";
+ageLabel.innerHTML = "Age Range: <span id='age-range'></span>";
 filterControls.appendChild(ageLabel);
 filterControls.appendChild(ageSlider);
 

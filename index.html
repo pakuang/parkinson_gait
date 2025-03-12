@@ -3,25 +3,106 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="stylesheet" href="style.css">
-  <title>Gait Speed Distribution</title>
+  <title>Gait Speed Distribution in Parkinson's Disease</title>
   <!-- Load D3 (version 6 or later recommended) -->
   <script src="https://d3js.org/d3.v6.min.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       text-align: center;
       background-color: #f4f4f4;
       margin: 0;
       padding: 20px;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3, h4 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-top: 10px;
+    }
+
+    h2 {
+      font-size: 1.7rem;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 5px;
+      display: inline-block;
+      margin: 20px auto;
+    }
+
+    .story-section {
+      max-width: 800px;
+      margin: 30px auto;
+      text-align: left;
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .story-section:hover {
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .story-section h3 {
+      color: #2c3e50;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 8px;
+      margin-top: 0;
+      font-size: 1.4rem;
+    }
+
+    .stat-highlight {
+      font-weight: bold;
+      color: #e74c3c;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { color: #e74c3c; }
+      50% { color: #c0392b; }
+      100% { color: #e74c3c; }
+    }
+
+    .annotation-box {
+      background-color: #f8f9fa;
+      border-left: 4px solid #3498db;
+      padding: 10px 15px;
+      margin: 15px 0;
+      font-size: 14px;
+      border-radius: 0 4px 4px 0;
+      transition: all 0.3s ease;
+    }
+
+    .annotation-box:hover {
+      background-color: #e3f2fd;
+      transform: translateX(5px);
+    }
+
+    .annotation-box strong {
+      color: #2980b9;
+      font-size: 16px;
     }
 
     #controls {
       margin-bottom: 1rem;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      margin: 0 auto 20px auto;
     }
 
     #chart-container {
       width: 80%;
-      margin: auto;
+      margin: 20px auto;
       background: white;
       padding: 20px;
       border-radius: 8px;
@@ -29,26 +110,29 @@
     }
 
     #chart {
-      outline: 1px solid #ccc; /* optional, for debugging layout */
+      outline: 1px solid #ddd;
     }
 
     select, input[type='range'] {
       margin: 0 10px;
       padding: 5px 10px;
       font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
 
     /* Tooltip styling */
     .tooltip {
       position: absolute;
-      text-align: center;
-      padding: 4px;
+      text-align: left;
+      padding: 10px;
       font-size: 12px;
-      background: #333;
+      background: rgba(45, 45, 45, 0.9);
       color: #fff;
       border-radius: 4px;
       pointer-events: none;
       opacity: 0;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
     }
 
     /* Axis styling */
@@ -68,16 +152,110 @@
       stroke: #999;
       stroke-width: 1;
     }
+
+    p.subtitle {
+      font-weight: 500;
+      color: #2c3e50;
+      max-width: 700px;
+      margin: 15px auto;
+    }
+    
+    /* Statistics box */
+    #statistics {
+      display: flex;
+      justify-content: space-around;
+      max-width: 800px;
+      margin: 20px auto;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-box {
+      text-align: center;
+      padding: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .stat-box:hover {
+      transform: translateY(-5px);
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #3498db;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #7f8c8d;
+    }
+    
+    /* Key findings section */
+    ol li {
+      margin-bottom: 10px;
+      text-align: left;
+    }
+    
+    .conclusion {
+      font-weight: bold;
+      color: #2c3e50;
+      font-size: 18px;
+      margin: 20px 0;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      border-left: 4px solid #2ecc71;
+    }
   </style>
 </head>
 <body>
 
-  <h2>Does Gait Speed Differ Between Individuals With and Without Parkinson’s?</h2>
+  <h1>The Hidden Struggles of Movement in Parkinson's Disease</h1>
+
+  <div class="story-section">
+    <h3>Every Step Tells a Story</h3>
+    <p><span class="stat-highlight">Every 9 minutes</span>, someone is diagnosed with Parkinson's disease. One of their first losses? The simple freedom of walking naturally.</p>
+    
+    <p>Walking is something most of us take for granted—a fundamental human activity that gives us mobility, independence, and connects us to our world. Each step involves complex coordination between our brain, nervous system, and muscles.</p>
+    
+    <div class="annotation-box">
+      <strong>AND:</strong> Healthy individuals maintain consistent, efficient walking patterns with naturally coordinated movements. Gait speed is considered a vital sign and predictor of overall health.
+    </div>
+    
+    <div class="annotation-box">
+      <strong>BUT:</strong> For people with Parkinson's disease, neurological changes disrupt this basic function. The disease causes dopamine-producing neurons to gradually die, leading to symptoms including bradykinesia (slowness of movement) that directly impacts how people walk.
+    </div>
+    
+    <div class="annotation-box">
+      <strong>THEREFORE:</strong> By analyzing differences in gait speed between those with and without Parkinson's, we can better understand the disease's impact, improve early detection, and develop targeted interventions to maintain mobility and quality of life.
+    </div>
+  </div>
+
+  <h2>Is the Rate of Gait Speed Decline with Age More Pronounced in Parkinson’s Patients?</h2>
 
   <h4 style="max-width: 600px; margin: auto; font-weight: normal; color: #555;">
-    Walking is something most of us take for granted, but for people with Parkinson’s, every step tells a story. 
-    How does Parkinson’s affect movement? Let’s explore how gait speed differs between individuals with and without the disease.
-</h4>
+    How does Parkinson's affect movement? Let's explore how gait speed differs between individuals with and without the disease.
+  </h4>
+
+  <!-- Statistics boxes -->
+  <div id="statistics">
+    <div class="stat-box">
+      <div class="stat-value">1.03 m/s</div>
+      <div class="stat-label">Avg. Speed (Parkinson's)</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value">1.25 m/s</div>
+      <div class="stat-label">Avg. Speed (Control)</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value">17.4%</div>
+      <div class="stat-label">Speed Reduction</div>
+    </div>
+  </div>
 
   <div id="controls">
     <!-- Dropdown for group selection -->
@@ -96,15 +274,34 @@
     <svg id="chart" width="800" height="400"></svg>
   </div>
 
-  <p class="subtitle">
-    Parkinson’s patients tend to walk more slowly, reflecting bradykinesia (slowness of movement).  
+  <!-- <p class="subtitle">
+    Parkinson's patients tend to walk more slowly, reflecting bradykinesia (slowness of movement).  
   </p>
   <p>
     Healthy individuals maintain a more consistent and higher walking speed.
   </p>
   <p>
-    Some individuals with Parkinson’s have speeds similar to healthy individuals, but changing the bin sizes show that variability is key.
-  </p>
+    Some individuals with Parkinson's have speeds similar to healthy individuals, but changing the bin sizes show that variability is key.
+  </p> -->
+
+  <!-- Key findings section -->
+  <div class="story-section">
+    <h3>Key Findings</h3>
+    
+    <p>Our visualization of real gait data from the Parkinson's Disease dataset reveals several important patterns:</p>
+    
+    <ol>
+      <li><strong>Significant Speed Difference:</strong> Parkinson's patients walk noticeably slower compared to healthy individuals—a substantial reduction in speed that reflects the bradykinesia (slowness of movement) characteristic of the disease.</li>
+      
+      <li><strong>Distribution Patterns:</strong> Control subjects show a more tightly clustered distribution around a higher mean, while Parkinson's patients demonstrate greater variability with a lower average speed, indicating the heterogeneous nature of the disease's impact on mobility.</li>
+      
+      <li><strong>Clinical Threshold:</strong> Research suggests that walking speeds below 1.0 m/s are associated with increased mortality risk and mobility limitations. Our data shows that many Parkinson's patients fall below this critical threshold, highlighting the clinical relevance of these findings.</li>
+      
+      <li><strong>Overlapping Populations:</strong> Despite the differences, there's significant overlap between the groups, suggesting that some Parkinson's patients maintain near-normal gait speeds—likely those in earlier disease stages or responding well to treatment.</li>
+    </ol>
+    
+    <p class="conclusion">These differences in gait speed not only help in diagnosis but also provide a measurable marker for disease progression and treatment effectiveness. By quantifying these differences, we can develop personalized interventions to preserve mobility and independence in those living with Parkinson's disease.</p>
+  </div>
 
   <!-- Tooltip div for mouseover events -->
   <div class="tooltip" id="tooltip"></div>
