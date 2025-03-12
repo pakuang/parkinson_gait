@@ -163,39 +163,39 @@ function drawHistogram(parkinsonsData, controlData, binCount = 15) {
       return;
   }
   // Remove existing legend if any (to prevent duplicates)
-chartArea.selectAll(".legend").remove();
+  chartArea.selectAll(".legend").remove();
 
-// Add a legend container
-const legend = chartArea.append("g")
-    .attr("class", "legend")
-    .attr("transform", `translate(${width / 2 - 70}, -30)`); // Adjust position
+  // Add a legend container
+  const legend = chartArea.append("g")
+      .attr("class", "legend")
+      .attr("transform", `translate(${width / 2 - 70}, -30)`); // Adjust position
 
-// Parkinson’s Legend
-legend.append("rect")
-    .attr("width", 15)
-    .attr("height", 15)
-    .attr("fill", "crimson") 
-    .attr("opacity", 0.6);
+  // Parkinson's Legend
+  legend.append("rect")
+      .attr("width", 15)
+      .attr("height", 15)
+      .attr("fill", "crimson") 
+      .attr("opacity", 0.6);
 
-legend.append("text")
-    .text("Parkinson's")
-    .attr("x", 20)
-    .attr("y", 12)
-    .attr("font-size", "14px");
+  legend.append("text")
+      .text("Parkinson's")
+      .attr("x", 20)
+      .attr("y", 12)
+      .attr("font-size", "14px");
 
-// Control Legend
-legend.append("rect")
-    .attr("width", 15)
-    .attr("height", 15)
-    .attr("fill", "steelblue") 
-    .attr("opacity", 0.6)
-    .attr("x", 100);
+  // Control Legend
+  legend.append("rect")
+      .attr("width", 15)
+      .attr("height", 15)
+      .attr("fill", "steelblue") 
+      .attr("opacity", 0.6)
+      .attr("x", 100);
 
-legend.append("text")
-    .text("Control")
-    .attr("x", 120)
-    .attr("y", 12)
-    .attr("font-size", "14px");
+  legend.append("text")
+      .text("Control")
+      .attr("x", 120)
+      .attr("y", 12)
+      .attr("font-size", "14px");
 
   const maxVal = Math.max(
       d3.max(parkinsonsData, d => d) || 0, 
@@ -217,6 +217,10 @@ legend.append("text")
   chartArea.selectAll(".barPark").remove();
   chartArea.selectAll(".barCtrl").remove();
 
+  // Get the tooltip element
+  const tooltip = d3.select("#tooltip");
+
+  // Parkinson's bars with hover functionality
   chartArea.selectAll(".barPark")
       .data(binsPark)
       .enter()
@@ -228,11 +232,42 @@ legend.append("text")
       .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
       .attr("y", height)
       .attr("height", 0)
+      .on("mouseover", function(event, d) {
+          // Calculate percentage of total
+          const percentage = ((d.length / parkinsonsData.length) * 100).toFixed(1);
+          
+          // Show tooltip with data
+          tooltip
+              .style("opacity", 1)
+              .html(`
+                  <strong>Parkinson's Group</strong><br>
+                  Speed Range: ${d.x0.toFixed(2)} - ${d.x1.toFixed(2)} m/s<br>
+                  Count: ${d.length} subjects<br>
+                  Percentage: ${percentage}%
+              `)
+              .style("left", (event.pageX + 10) + "px")
+              .style("top", (event.pageY - 28) + "px");
+          
+          // Highlight the bar
+          d3.select(this).attr("opacity", 0.9);
+      })
+      .on("mousemove", function(event) {
+          // Move tooltip with mouse
+          tooltip
+              .style("left", (event.pageX + 10) + "px")
+              .style("top", (event.pageY - 28) + "px");
+      })
+      .on("mouseout", function() {
+          // Hide tooltip and restore opacity
+          tooltip.style("opacity", 0);
+          d3.select(this).attr("opacity", 0.6);
+      })
       .transition()
       .duration(750)
       .attr("y", d => yScale(d.length))
       .attr("height", d => height - yScale(d.length));
 
+  // Control bars with hover functionality
   chartArea.selectAll(".barCtrl")
       .data(binsCtrl)
       .enter()
@@ -244,16 +279,44 @@ legend.append("text")
       .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
       .attr("y", height)
       .attr("height", 0)
+      .on("mouseover", function(event, d) {
+          // Calculate percentage of total
+          const percentage = ((d.length / controlData.length) * 100).toFixed(1);
+          
+          // Show tooltip with data
+          tooltip
+              .style("opacity", 1)
+              .html(`
+                  <strong>Control Group</strong><br>
+                  Speed Range: ${d.x0.toFixed(2)} - ${d.x1.toFixed(2)} m/s<br>
+                  Count: ${d.length} subjects<br>
+                  Percentage: ${percentage}%
+              `)
+              .style("left", (event.pageX + 10) + "px")
+              .style("top", (event.pageY - 28) + "px");
+          
+          // Highlight the bar
+          d3.select(this).attr("opacity", 0.9);
+      })
+      .on("mousemove", function(event) {
+          // Move tooltip with mouse
+          tooltip
+              .style("left", (event.pageX + 10) + "px")
+              .style("top", (event.pageY - 28) + "px");
+      })
+      .on("mouseout", function() {
+          // Hide tooltip and restore opacity
+          tooltip.style("opacity", 0);
+          d3.select(this).attr("opacity", 0.6);
+      })
       .transition()
       .duration(750)
       .attr("y", d => yScale(d.length))
       .attr("height", d => height - yScale(d.length));
 
-      
   xAxisGroup.transition().duration(750).call(d3.axisBottom(xScale));
   yAxisGroup.transition().duration(750).call(d3.axisLeft(yScale).ticks(6));
 }
-
 
 /*******************
  * STEP 6: Initialize
