@@ -6,221 +6,6 @@
   <title>Gait Speed Distribution in Parkinson's Disease</title>
   <!-- Load D3 (version 6 or later recommended) -->
   <script src="https://d3js.org/d3.v6.min.js"></script>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      text-align: center;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 20px;
-      color: #333;
-      line-height: 1.6;
-    }
-
-    h1, h2, h3, h4 {
-      color: #2c3e50;
-      margin-bottom: 15px;
-    }
-
-    h1 {
-      font-size: 2.2rem;
-      margin-top: 10px;
-    }
-
-    h2 {
-      font-size: 1.7rem;
-      border-bottom: 2px solid #3498db;
-      padding-bottom: 5px;
-      display: inline-block;
-      margin: 20px auto;
-    }
-
-    .story-section {
-      max-width: 800px;
-      margin: 30px auto;
-      text-align: left;
-      background: white;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-    }
-
-    .story-section:hover {
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .story-section h3 {
-      color: #2c3e50;
-      border-bottom: 2px solid #3498db;
-      padding-bottom: 8px;
-      margin-top: 0;
-      font-size: 1.4rem;
-    }
-
-    .stat-highlight {
-      font-weight: bold;
-      color: #e74c3c;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% { color: #e74c3c; }
-      50% { color: #c0392b; }
-      100% { color: #e74c3c; }
-    }
-
-    .annotation-box {
-      background-color: #f8f9fa;
-      border-left: 4px solid #3498db;
-      padding: 10px 15px;
-      margin: 15px 0;
-      font-size: 14px;
-      border-radius: 0 4px 4px 0;
-      transition: all 0.3s ease;
-    }
-
-    .annotation-box:hover {
-      background-color: #e3f2fd;
-      transform: translateX(5px);
-    }
-
-    .annotation-box strong {
-      color: #2980b9;
-      font-size: 16px;
-    }
-
-    #controls {
-      margin-bottom: 1rem;
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-      width: 80%;
-      margin: 0 auto 20px auto;
-    }
-
-    #chart-container {
-      width: 80%;
-      margin: 20px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    #chart {
-      outline: 1px solid #ddd;
-    }
-
-    select, input[type='range'] {
-      margin: 0 10px;
-      padding: 5px 10px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    /* Tooltip styling */
-    .tooltip {
-      position: absolute;
-      text-align: left;
-      padding: 10px;
-      font-size: 12px;
-      background: rgba(45, 45, 45, 0.9);
-      color: #fff;
-      border-radius: 4px;
-      pointer-events: none;
-      opacity: 0;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-      transition: opacity 0.2s;
-      max-width: 200px;
-      z-index: 100;
-    }
-
-    .tooltip strong {
-      font-size: 13px;
-      color: #3498db;
-      margin-bottom: 5px;
-      display: block;
-    }
-
-    /* Axis styling */
-    .axis text {
-      font-size: 12px;
-      fill: #555;
-    }
-
-    .axis path,
-    .axis line {
-      stroke: #888;
-    }
-
-    .brush .selection {
-      fill: #777;
-      fill-opacity: 0.3;
-      stroke: #999;
-      stroke-width: 1;
-    }
-
-    p.subtitle {
-      font-weight: 500;
-      color: #2c3e50;
-      max-width: 700px;
-      margin: 15px auto;
-    }
-    
-    /* Statistics box */
-    #statistics {
-      display: flex;
-      justify-content: space-around;
-      max-width: 800px;
-      margin: 20px auto;
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .stat-box {
-      text-align: center;
-      padding: 10px;
-      transition: all 0.3s ease;
-    }
-
-    .stat-box:hover {
-      transform: translateY(-5px);
-    }
-
-    .stat-value {
-      font-size: 24px;
-      font-weight: bold;
-      color: #3498db;
-      margin-bottom: 5px;
-    }
-
-    .stat-label {
-      font-size: 14px;
-      color: #7f8c8d;
-    }
-    
-    /* Key findings section */
-    ol li {
-      margin-bottom: 10px;
-      text-align: left;
-    }
-    
-    .conclusion {
-      font-weight: bold;
-      color: #2c3e50;
-      font-size: 18px;
-      margin: 20px 0;
-      padding: 10px;
-      background-color: #f8f9fa;
-      border-radius: 4px;
-      border-left: 4px solid #2ecc71;
-    }
-  </style>
 </head>
 <body>
 
@@ -284,16 +69,6 @@
     <svg id="chart" width="800" height="400"></svg>
   </div>
 
-  <!-- <p class="subtitle">
-    Parkinson's patients tend to walk more slowly, reflecting bradykinesia (slowness of movement).  
-  </p>
-  <p>
-    Healthy individuals maintain a more consistent and higher walking speed.
-  </p>
-  <p>
-    Some individuals with Parkinson's have speeds similar to healthy individuals, but changing the bin sizes show that variability is key.
-  </p> -->
-
   <!-- Key findings section -->
   <div class="story-section">
     <h3>Key Findings</h3>
@@ -311,6 +86,22 @@
     </ol>
     
     <p class="conclusion">These differences in gait speed not only help in diagnosis but also provide a measurable marker for disease progression and treatment effectiveness. By quantifying these differences, we can develop personalized interventions to preserve mobility and independence in those living with Parkinson's disease.</p>
+  </div>
+
+  <!-- Video section -->
+  <div class="video-container">
+    <h3>Project Walkthrough Video</h3>
+    <p>Watch this short video explaining the visualization and key insights:</p>
+    <!-- Replace with your actual YouTube embed or video link -->
+    <iframe src="https://www.youtube.com/embed/your-video-id" title="Parkinson's Disease Gait Speed Visualization Project" allowfullscreen></iframe>
+  </div>
+
+  <!-- Project links section -->
+  <div class="project-links">
+    <h3>Project Resources</h3>
+    <p><strong>GitHub Repository:</strong> <a href="https://github.com/yourusername/parkinsons-gait-visualization" target="_blank">https://github.com/yourusername/parkinsons-gait-visualization</a></p>
+    <p><strong>Data Source:</strong> <a href="https://physionet.org/content/gaitpdb/1.0.0/" target="_blank">PhysioNet - Gait in Parkinson's Disease</a></p>
+    <p><strong>Related Research:</strong> <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3573829/" target="_blank">Gait Speed and Survival in Older Adults</a></p>
   </div>
 
   <!-- Tooltip div for mouseover events -->
